@@ -8,6 +8,7 @@ class Vec3{
         double v[3];
 
     public: 
+
         Vec3();
         Vec3(double x);
         Vec3(double x,double y,double z);
@@ -31,6 +32,11 @@ class Vec3{
         Vec3 operator*(double scalar) const;
         Vec3 operator/(double scalar) const;
 
+        Vec3& operator+=(const Vec3& rhs);
+        Vec3& operator-=(const Vec3& rhs);
+        Vec3& operator*=(double scalar);
+        Vec3& operator/=(double scalar);
+
         double dot(const Vec3& rhs) const;
         Vec3 cross(const Vec3& rhs) const;
 
@@ -39,6 +45,12 @@ class Vec3{
         Vec3 normalize() const;
 
         bool effectively_zero() const;
+
+        static Vec3 random_vec3();
+        static Vec3 random_vec3(double min,double max);
+        static Vec3 random_unit_sphere();
+        static Vec3 random_unit_vec3();
+
 
 };
 

@@ -1,6 +1,8 @@
 #include "vec3.h"
 #include <cmath>
 #include <cassert>
+#include "util.h"
+#include <iostream>
 
 Vec3::Vec3()
 :v{0.,0.,0.}
@@ -11,7 +13,7 @@ Vec3::Vec3()
 Vec3::Vec3(double x)
 :v{x,x,x}
 {
-
+    
 }
 
 
@@ -79,6 +81,31 @@ Vec3 Vec3::operator/(double scalar) const{
     return *this * (1.0 / scalar);
 }
 
+Vec3& Vec3::operator+=(const Vec3& rhs){
+    v[0]+= rhs.x();
+    v[1]+= rhs.y();
+    v[2]+= rhs.z();
+    return *this;
+}
+
+Vec3& Vec3::operator-=(const Vec3& rhs){
+    v[0]-= rhs.x();
+    v[1]-= rhs.y();
+    v[2]-= rhs.z();
+    return *this;
+}
+
+Vec3& Vec3::operator*=(double scalar){
+    v[0]*= scalar;
+    v[1]*= scalar;
+    v[2]*= scalar;
+    return *this;
+}
+
+Vec3& Vec3::operator/=(double scalar){
+    return *this *= (1.0/ scalar);
+}
+
 double Vec3::dot(const Vec3& rhs) const{
     return v[0]*rhs.x() + v[1]*rhs.y() + v[2]*rhs.z();
 }
@@ -107,8 +134,31 @@ bool Vec3::effectively_zero() const{
     return norm2() < 0.0001;
 }
 
+Vec3 Vec3::random_vec3(){
+    return Vec3(random(),random(),random());
+}
+
+Vec3 Vec3::random_vec3(double min,double max){
+    return Vec3(random_range(min,max),random_range(min,max),random_range(min,max));
+}
+
+Vec3 Vec3::random_unit_sphere(){
+    while(true){
+        Vec3 v(random_vec3(-1.,1.));
+        if(v.norm2() > 1) continue;
+        return v;
+    }
+}
+
+Vec3 Vec3::random_unit_vec3(){
+    return random_unit_sphere().normalize();
+}
+
+
+
 
 std::ostream& operator<<(std::ostream& os,const Vec3& v){
     os << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")";
     return os;
 }
+
