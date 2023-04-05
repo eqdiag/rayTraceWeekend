@@ -1,14 +1,14 @@
 #include "sphere.h"
 #include <cmath>
 
-Sphere::Sphere()
-:center{},radius{1.0}
+Sphere::Sphere(std::shared_ptr<Material> material)
+:center{},radius{1.0},material{material}
 {
 
 }
 
-Sphere::Sphere(Point3 center,double radius)
-:center{center},radius{radius}
+Sphere::Sphere(Point3 center,double radius,std::shared_ptr<Material> material)
+:center{center},radius{radius},material{material}
 {
 
 }
@@ -45,6 +45,7 @@ std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const
     hit.point = ray.cast(t);
     hit.normal = (hit.point - center)/radius;
     hit.front_face = v.dot(hit.point - center) < 0.0;
+    hit.material = material;
 
     return std::make_optional<Hit>(hit);
 

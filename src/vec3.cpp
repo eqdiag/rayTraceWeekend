@@ -13,7 +13,7 @@ Vec3::Vec3()
 Vec3::Vec3(double x)
 :v{x,x,x}
 {
-    
+
 }
 
 
@@ -72,6 +72,11 @@ Vec3 Vec3::operator+(const Vec3& rhs) const{
 Vec3 Vec3::operator-(const Vec3& rhs) const{
     return Vec3(v[0] - rhs.x(),v[1] - rhs.y(),v[2] - rhs.z());
 }
+
+Vec3 Vec3::operator*(const Vec3& rhs) const{
+    return Vec3(v[0]*rhs.x(),v[1]*rhs.y(),v[2]*rhs.z());
+}
+
 
 Vec3 Vec3::operator*(double scalar) const{
     return Vec3(v[0]*scalar,v[1]*scalar,v[2]*scalar);
@@ -133,6 +138,11 @@ Vec3 Vec3::normalize() const{
 bool Vec3::effectively_zero() const{
     return norm2() < 0.0001;
 }
+
+Vec3 Vec3::reflect(const Vec3& normal) const{
+    return *this - normal*2.0*this->dot(normal);
+}
+
 
 Vec3 Vec3::random_vec3(){
     return Vec3(random(),random(),random());

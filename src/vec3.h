@@ -29,6 +29,8 @@ class Vec3{
 
         Vec3 operator+(const Vec3& rhs) const;
         Vec3 operator-(const Vec3& rhs) const;
+        Vec3 operator*(const Vec3& rhs) const;
+
         Vec3 operator*(double scalar) const;
         Vec3 operator/(double scalar) const;
 
@@ -45,6 +47,8 @@ class Vec3{
         Vec3 normalize() const;
 
         bool effectively_zero() const;
+
+        Vec3 reflect(const Vec3& normal) const;
 
         static Vec3 random_vec3();
         static Vec3 random_vec3(double min,double max);

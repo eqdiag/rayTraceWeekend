@@ -23,12 +23,14 @@ Color3 shade(const Ray3& ray,const Hittable& scene,int depth){
 
 
     if(hit.has_value()){
-        //Diffuse material implicit here
-        Point3 q = Point3(hit.value().point + hit.value().normal + Vec3::random_unit_vec3());       
-        Ray3 new_ray(hit.value().point,q - hit.value().point);
 
-        return shade(new_ray,scene,depth-1)*0.5;
-   
+        auto material = hit.value().material;
+        Ray3 out{};
+        Color3 attenuation{};
+        if(material->scatter(ray,hit.value(),out,attenuation)){
+            return shade(out,scene,depth-1)*attenuation;
+        }
+        return Color3{0.0};
     }
 
     return background(ray);
@@ -67,10 +69,19 @@ int main(){
     Point3 lower_left = eye - dx*0.5 - dy*0.5 - Vec3(0,0,focal_length);
 
 
+    //Scene materials
+    auto ground = std::make_shared<Lambertian>(Lambertian{Color3{0.8,0.8,0.0}});
+    auto material_center = std::make_shared<Lambertian>(Lambertian{Color3{0.7,0.3,0.3}});
+    auto material_left = std::make_shared<Metal>(Metal{Color3{0.8},0.3});
+    auto material_right = std::make_shared<Metal>(Metal{Color3{0.8,0.6,0.2},1.0});
+
+
     //Scene geometry
     HitList scene;
-    scene.add(std::make_shared<Sphere>(Point3(0.,0.,-1.),0.5));
-    scene.add(std::make_shared<Sphere>(Point3(0,-100.5,-1),100));
+    scene.add(std::make_shared<Sphere>(Point3(0.,0.,-1.),0.5,material_center));
+    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.,-1.),0.5,material_left));
+    scene.add(std::make_shared<Sphere>(Point3(1.0,0.,-1.),0.5,material_right));
+    scene.add(std::make_shared<Sphere>(Point3(0,-100.5,-1),100,ground));
 
     Ray3 ray(Point3{},Vec3{0.0,0.0,-1.0});
 
@@ -85,18 +96,15 @@ int main(){
             Color3 color{};
 
             for(int sample = 0;sample< samples_per_pixel;sample++){
-                //std::cerr << random() << std::endl;
                 double u = (double(j) + random())/(WIDTH - 1);
                 double v = (double(i) + random())/(HEIGHT - 1);
-                //double u = double(j)/(WIDTH - 1);
-                //double v = double(i)/(HEIGHT - 1);
+        
 
                 Point3 eye{};
                 Point3 screen_point(lower_left + dx*u + dy*v);
                 Vec3 direction(screen_point - eye);
                 Ray3 ray(eye,direction);
 
-                //color = shade(ray,scene,max_depth);
                 color += shade(ray,scene,max_depth);
             }
             color /= double(samples_per_pixel);

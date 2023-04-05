@@ -3,15 +3,20 @@
 
 #include "vec3.h"
 #include "ray3.h"
+#include "material.h"
 #include <optional>
 #include <vector>
 #include <memory>
+
+//Forward declaration
+struct Material;
 
 struct Hit{
     double t;
     Point3 point;
     Vec3 normal;
     bool front_face{true};
+    std::shared_ptr<Material> material;
     Hit();
     Hit(double t,Point3 point,Vec3 normal,bool front_face);
 };
