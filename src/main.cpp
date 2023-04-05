@@ -55,7 +55,7 @@ int main(){
     const int WIDTH = 600;
     const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
     int samples_per_pixel = 100;
-    int max_depth = 50;
+    int max_depth = 10;
 
     //Camera setup
     double view_height = 2.0;
@@ -70,20 +70,43 @@ int main(){
 
 
     //Scene materials
-    auto ground = std::make_shared<Lambertian>(Lambertian{Color3{0.8,0.8,0.0}});
-    auto material_center = std::make_shared<Lambertian>(Lambertian{Color3{0.7,0.3,0.3}});
-    auto material_left = std::make_shared<Metal>(Metal{Color3{0.8},0.3});
-    auto material_right = std::make_shared<Metal>(Metal{Color3{0.8,0.6,0.2},1.0});
+    auto ground = std::make_shared<Lambertian>(Color3{0.8,0.8,0.0});
+    auto material_center = std::make_shared<Lambertian>(Color3{0.1,0.2,0.5});
+    auto material_left = std::make_shared<Dielectric>(1.5);
+    auto material_right = std::make_shared<Metal>(Color3{0.8,0.6,0.2},1.0);
 
 
     //Scene geometry
     HitList scene;
     scene.add(std::make_shared<Sphere>(Point3(0.,0.,-1.),0.5,material_center));
-    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.,-1.),0.5,material_left));
+    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),0.5,material_left));
+    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),-0.4,material_left));
     scene.add(std::make_shared<Sphere>(Point3(1.0,0.,-1.),0.5,material_right));
     scene.add(std::make_shared<Sphere>(Point3(0,-100.5,-1),100,ground));
 
-    Ray3 ray(Point3{},Vec3{0.0,0.0,-1.0});
+    /*Ray3 ray1(Point3{},Vec3{0.0,0.0,-1.0});
+    Ray3 ray2{};
+    Ray3 ray3{};
+    Color3 att{};
+
+
+    auto hit1 = scene.getHit(ray1,0.001,INF_DOUBLE);
+
+    if(hit1.has_value()){
+        std::cerr << hit1.value() << std::endl;
+        material_center->scatter(ray1,hit1.value(),ray2,att);
+        std::cerr << ray2 << std::endl << std::endl;
+
+        auto hit2 = scene.getHit(ray2,0.001,INF_DOUBLE);
+        if(hit2.has_value()){
+            std::cerr << hit2.value() << std::endl;
+            material_center->scatter(ray2,hit2.value(),ray3,att);
+            std::cerr << ray3 << std::endl << std::endl;
+
+        }
+    }
+
+    return 0;*/
 
     //Iterate through pixels and shade
 

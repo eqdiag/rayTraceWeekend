@@ -49,6 +49,8 @@ class Vec3{
         bool effectively_zero() const;
 
         Vec3 reflect(const Vec3& normal) const;
+        Vec3 refract(const Vec3& normal,double ir) const;
+
 
         static Vec3 random_vec3();
         static Vec3 random_vec3(double min,double max);

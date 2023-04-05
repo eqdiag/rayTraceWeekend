@@ -43,8 +43,8 @@ std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const
     Hit hit{};
     hit.t = t;
     hit.point = ray.cast(t);
-    hit.normal = (hit.point - center)/radius;
-    hit.front_face = v.dot(hit.point - center) < 0.0;
+    Vec3 normal = (hit.point - center)/radius;
+    hit.set_face_normal(ray,normal);
     hit.material = material;
 
     return std::make_optional<Hit>(hit);

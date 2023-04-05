@@ -11,25 +11,25 @@
 - [x] gamma correction
 - [x] metal
 - [x] fuzzy metal
-- [] glass
-- [] camera
-- [] motion blur
+- [x] glass
+- [ ] camera
+- [ ] motion blur
 
 ## Book 2:
-- [] motion blur
-- [] bvh
-- [] solid textures 
-- [] perlin noise
-- [] image texture mapping
-- [] rectangles and lights
-- [] instances
-- [] volumes
+- [ ] motion blur
+- [ ] bvh
+- [ ] solid textures 
+- [ ] perlin noise
+- [ ] image texture mapping
+- [ ] rectangles and lights
+- [ ] instances
+- [ ] volumes
 
 ## Book 3:
-- [] light scattering
-- [] importance sampling
-- [] add more...
+- [ ] light scattering
+- [ ] importance sampling
+- [ ] add more...
 
 ## Extra:
-- [] load obj
-- [] load img
+- [ ] load obj
+- [ ] load img

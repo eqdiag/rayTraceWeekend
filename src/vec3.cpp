@@ -132,7 +132,7 @@ double Vec3::norm() const{
 }
 
 Vec3 Vec3::normalize() const{
-    return *this / norm2();
+    return *this / norm();
 }
 
 bool Vec3::effectively_zero() const{
@@ -142,6 +142,15 @@ bool Vec3::effectively_zero() const{
 Vec3 Vec3::reflect(const Vec3& normal) const{
     return *this - normal*2.0*this->dot(normal);
 }
+
+Vec3 Vec3::refract(const Vec3& normal,double ir) const{
+ 
+    double cos_theta = -this->dot(normal);
+    Vec3 r_out_perp =  (*this + normal*cos_theta) * ir;
+    Vec3 r_out_parallel = normal * -sqrt(fabs(1.0 - r_out_perp.norm2()));
+    return r_out_perp + r_out_parallel;
+}
+
 
 
 Vec3 Vec3::random_vec3(){

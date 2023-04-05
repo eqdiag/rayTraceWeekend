@@ -7,6 +7,7 @@
 #include <optional>
 #include <vector>
 #include <memory>
+#include <ostream>
 
 //Forward declaration
 struct Material;
@@ -19,7 +20,14 @@ struct Hit{
     std::shared_ptr<Material> material;
     Hit();
     Hit(double t,Point3 point,Vec3 normal,bool front_face);
+
+    void set_face_normal(const Ray3& ray,const Vec3& out_normal){
+        front_face = ray.getDirection().dot(out_normal) < 0.0;
+        normal = front_face ? out_normal : -out_normal;
+    }
 };
+
+std::ostream& operator<<(std::ostream& os,const Hit& hit);
 
 class Hittable{
     public:

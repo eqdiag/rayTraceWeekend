@@ -8,8 +8,19 @@ Hit::Hit(double t,Point3 point,Vec3 normal,bool front_face)
 
 Hit::Hit()
 {
-    
+
 }
+
+std::ostream& operator<<(std::ostream& os,const Hit& hit){
+    os << "t: " << hit.t << "\n" <<
+    "P: " << hit.point << "\n" <<
+    "N: " << hit.normal << "\n" <<
+    "Front Facing: " << hit.front_face << "\n" << 
+    std::endl;
+
+    return os;
+}
+
 
 HitList::HitList(){
 
