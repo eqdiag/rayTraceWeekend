@@ -4,16 +4,16 @@
 - [x] output ppm
 - [x] impl vectors
 - [x] impl rays
-- [] impl camera
 - [x] impl sphere
-- [] materials
+- [x] materials
 - [x] multi pixel samples
-- [] diffuse
+- [x] diffuse
 - [x] gamma correction
-- [] metal
-- [] fuzzy metal
+- [x] metal
+- [x] fuzzy metal
 - [] glass
-- [] blur
+- [] camera
+- [] motion blur
 
 ## Book 2:
 - [] motion blur
