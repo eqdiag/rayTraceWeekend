@@ -1,4 +1,4 @@
-### TODO
+### Current and Future Features
 
 ## Book 1:
 - [x] output ppm
@@ -12,8 +12,8 @@
 - [x] metal
 - [x] fuzzy metal
 - [x] glass
-- [ ] camera
-- [ ] motion blur
+- [x] camera
+- [x] depth of field
 
 ## Book 2:
 - [ ] motion blur

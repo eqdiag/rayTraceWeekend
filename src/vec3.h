@@ -51,12 +51,13 @@ class Vec3{
         Vec3 reflect(const Vec3& normal) const;
         Vec3 refract(const Vec3& normal,double ir) const;
 
-
+        static Vec3 random_vec2(double min,double max);
         static Vec3 random_vec3();
         static Vec3 random_vec3(double min,double max);
         static Vec3 random_unit_sphere();
+        //3rd component always zero
+        static Vec3 random_unit_disk();
         static Vec3 random_unit_vec3();
-
 
 };
 

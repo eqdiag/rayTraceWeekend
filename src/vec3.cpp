@@ -152,6 +152,9 @@ Vec3 Vec3::refract(const Vec3& normal,double ir) const{
 }
 
 
+Vec3 Vec3::random_vec2(double min,double max){
+    return Vec3(random_range(min,max),random_range(min,max),0.0);
+}
 
 Vec3 Vec3::random_vec3(){
     return Vec3(random(),random(),random());
@@ -168,6 +171,15 @@ Vec3 Vec3::random_unit_sphere(){
         return v;
     }
 }
+
+Vec3 Vec3::random_unit_disk(){
+    while(true){
+        Vec3 v(random_vec2(-1.,1.));
+        if(v.norm2() > 1.0) continue;
+        return v;
+    }
+}
+
 
 Vec3 Vec3::random_unit_vec3(){
     return random_unit_sphere().normalize();

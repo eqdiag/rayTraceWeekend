@@ -6,6 +6,7 @@
 #include "hit.h"
 #include <cassert>
 #include <cmath>
+#include "camera.h"
 
 Color3 background(const Ray3& ray){
     double t = (ray.getDirection().y() + 1.)*.5;
@@ -47,29 +48,7 @@ void ouputColor(const Color3& color){
     static_cast<int>(outColor.b()*255.999) << " ";
 }
 
-int main(){
-
-
-    //Image params
-    const double aspect_ratio = 16./9.;
-    const int WIDTH = 600;
-    const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
-    int samples_per_pixel = 100;
-    int max_depth = 10;
-
-    //Camera setup
-    double view_height = 2.0;
-    double view_width = aspect_ratio * view_height;
-    double focal_length = 1.0;
-
-
-    Point3 eye{};
-    Vec3 dx(view_width,0.0,0.0);
-    Vec3 dy(0.0,view_height,0.0);
-    Point3 lower_left = eye - dx*0.5 - dy*0.5 - Vec3(0,0,focal_length);
-
-
-    //Scene materials
+HitList basic_scene(){
     auto ground = std::make_shared<Lambertian>(Color3{0.8,0.8,0.0});
     auto material_center = std::make_shared<Lambertian>(Color3{0.1,0.2,0.5});
     auto material_left = std::make_shared<Dielectric>(1.5);
@@ -80,33 +59,82 @@ int main(){
     HitList scene;
     scene.add(std::make_shared<Sphere>(Point3(0.,0.,-1.),0.5,material_center));
     scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),0.5,material_left));
-    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),-0.4,material_left));
+    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),-0.45,material_left));
     scene.add(std::make_shared<Sphere>(Point3(1.0,0.,-1.),0.5,material_right));
     scene.add(std::make_shared<Sphere>(Point3(0,-100.5,-1),100,ground));
 
-    /*Ray3 ray1(Point3{},Vec3{0.0,0.0,-1.0});
-    Ray3 ray2{};
-    Ray3 ray3{};
-    Color3 att{};
+    return scene;
+}
 
+HitList random_scene() {
+    HitList scene;
 
-    auto hit1 = scene.getHit(ray1,0.001,INF_DOUBLE);
+    auto ground_material = std::make_shared<Lambertian>(Color3(0.5, 0.5, 0.5));
+    scene.add(std::make_shared<Sphere>(Point3(0,-1000,0), 1000, ground_material));
 
-    if(hit1.has_value()){
-        std::cerr << hit1.value() << std::endl;
-        material_center->scatter(ray1,hit1.value(),ray2,att);
-        std::cerr << ray2 << std::endl << std::endl;
+    for (int a = -11; a < 11; a++) {
+        for (int b = -11; b < 11; b++) {
+            auto choose_mat = rand();
+            Point3 center(a + 0.9*rand(), 0.2, b + 0.9*rand());
 
-        auto hit2 = scene.getHit(ray2,0.001,INF_DOUBLE);
-        if(hit2.has_value()){
-            std::cerr << hit2.value() << std::endl;
-            material_center->scatter(ray2,hit2.value(),ray3,att);
-            std::cerr << ray3 << std::endl << std::endl;
+            //if ((center - Point3(4, 0.2, 0)).norm() > 0.9) {
+                std::shared_ptr<Material> sphere_material;
 
+                if (choose_mat < 0.8) {
+                    // diffuse
+                    auto albedo = Color3::random_vec3(0.0,1.0) * Color3::random_vec3(0.0,1.0);
+                    sphere_material = std::make_shared<Lambertian>(albedo);
+                    scene.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                } else if (choose_mat < 0.95) {
+                    // metal
+                    auto albedo = Color3::random_vec3(0.5, 1);
+                    auto fuzz = random_range(0, 0.5);
+                    sphere_material = std::make_shared<Metal>(albedo, fuzz);
+                    scene.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                } else {
+                    // glass
+                    sphere_material = std::make_shared<Dielectric>(1.5);
+                    scene.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                }
+            //}
         }
     }
 
-    return 0;*/
+    auto material1 = std::make_shared<Dielectric>(1.5);
+    scene.add(std::make_shared<Sphere>(Point3(0, 1, 0), 1.0, material1));
+
+    auto material2 = std::make_shared<Lambertian>(Color3(0.4, 0.2, 0.1));
+    scene.add(std::make_shared<Sphere>(Point3(-4, 1, 0), 1.0, material2));
+
+    auto material3 = std::make_shared<Metal>(Color3(0.7, 0.6, 0.5), 0.0);
+    scene.add(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
+
+    return scene;
+}
+
+int main(){
+
+
+    //Image params
+    const double aspect_ratio = 16./9.;
+    const int WIDTH = 600;
+    const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
+
+    //Sampling params
+    int samples_per_pixel = 100;
+    int max_depth = 50;
+
+    //Camera
+    Point3 from(13,2,3);
+    Point3 at(0,0,0);
+    Vec3 up(0,1,0);
+    double f_dist = 10.0;
+    double aperture = 0.1;
+
+    Camera cam(from,at,up,20.0,aspect_ratio,aperture,f_dist);
+
+    auto scene = random_scene();
+    
 
     //Iterate through pixels and shade
 
@@ -121,12 +149,8 @@ int main(){
             for(int sample = 0;sample< samples_per_pixel;sample++){
                 double u = (double(j) + random())/(WIDTH - 1);
                 double v = (double(i) + random())/(HEIGHT - 1);
-        
 
-                Point3 eye{};
-                Point3 screen_point(lower_left + dx*u + dy*v);
-                Vec3 direction(screen_point - eye);
-                Ray3 ray(eye,direction);
+                Ray3 ray = cam.getRay(u,v);
 
                 color += shade(ray,scene,max_depth);
             }
