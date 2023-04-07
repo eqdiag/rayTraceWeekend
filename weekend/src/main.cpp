@@ -74,10 +74,10 @@ HitList random_scene() {
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            auto choose_mat = rand();
-            Point3 center(a + 0.9*rand(), 0.2, b + 0.9*rand());
+            auto choose_mat = random();
+            Point3 center(a + 0.9*random(), 0.2, b + 0.9*random());
 
-            //if ((center - Point3(4, 0.2, 0)).norm() > 0.9) {
+            if ((center - Point3(4, 0.2, 0)).norm() > 0.9) {
                 std::shared_ptr<Material> sphere_material;
 
                 if (choose_mat < 0.8) {
@@ -96,9 +96,10 @@ HitList random_scene() {
                     sphere_material = std::make_shared<Dielectric>(1.5);
                     scene.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
                 }
-            //}
+            }
         }
     }
+
 
     auto material1 = std::make_shared<Dielectric>(1.5);
     scene.add(std::make_shared<Sphere>(Point3(0, 1, 0), 1.0, material1));
@@ -116,12 +117,12 @@ int main(){
 
 
     //Image params
-    const double aspect_ratio = 16./9.;
-    const int WIDTH = 600;
+    const double aspect_ratio = 3.0/2.0;
+    const int WIDTH = 1200;
     const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
 
     //Sampling params
-    int samples_per_pixel = 100;
+    int samples_per_pixel = 500;
     int max_depth = 50;
 
     //Camera
