@@ -16,7 +16,7 @@
 - [x] depth of field
 
 ## Book 2:
-- [ ] motion blur
+- [x] motion blur
 - [ ] bvh
 - [ ] solid textures 
 - [ ] perlin noise
