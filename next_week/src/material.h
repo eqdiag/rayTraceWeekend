@@ -3,6 +3,8 @@
 
 #include "ray3.h"
 #include "hit.h"
+#include "texture.h"
+#include <memory>
 
 //Forward declaration
 struct Hit;
@@ -14,10 +16,10 @@ class Material{
 
 class Lambertian: public Material{
     private:
-        Color3 albedo;
+        std::shared_ptr<Texture> albedo;
 
     public:
-        Lambertian(const Color3& albedo);
+        Lambertian(const std::shared_ptr<Texture> albedo);
 
         virtual bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
 
@@ -25,11 +27,11 @@ class Lambertian: public Material{
 
 class Metal: public Material{
     private:
-        Color3 albedo;
+        std::shared_ptr<Texture> albedo;
         double fuzz;
 
     public:
-        Metal(const Color3& albedo,double fuzz);
+        Metal(const std::shared_ptr<Texture> albedo,double fuzz);
 
         virtual bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
 

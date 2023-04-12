@@ -2,6 +2,12 @@
 #include <cmath>
 #include "util.h"
 
+Camera::Camera()
+{
+    
+}
+
+
 Camera::Camera(Vec3 eye,Vec3 lookAt,Vec3 iup,
             double fov,double aspect_ratio,double aperture,
             double focus_dist,

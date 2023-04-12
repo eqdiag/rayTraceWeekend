@@ -1,5 +1,6 @@
 #include "sphere.h"
 #include <cmath>
+#include "util.h"
 
 Sphere::Sphere(std::shared_ptr<Material> material)
 :center{},radius{1.0},material{material}
@@ -56,6 +57,7 @@ std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const
     Vec3 normal = (hit.point - center)/radius;
     hit.set_face_normal(ray,normal);
     hit.material = material;
+    getTexCoords(hit.u,hit.v,normal);
 
     return std::make_optional<Hit>(hit);
 
@@ -71,6 +73,16 @@ bool Sphere::getBoundingBox(double time0,double time1,AABB& box) const
     };
     return true;
 }
+
+void Sphere::getTexCoords(double& u,double &v,Point3& p)
+{
+    double phi = acos(p.y());
+    double theta = atan2(-p.z(),p.x()) + PI;
+
+    u = theta / (2*PI);
+    v = phi / PI;
+}
+
 
 std::ostream& operator<<(std::ostream& os,const Sphere& rhs)
 {

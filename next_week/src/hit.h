@@ -21,6 +21,8 @@ struct Hit{
     Vec3 normal;
     bool front_face{true};
     std::shared_ptr<Material> material;
+    double u,v;
+
     Hit();
     Hit(double t,Point3 point,Vec3 normal,bool front_face);
 

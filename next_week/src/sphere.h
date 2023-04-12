@@ -14,6 +14,10 @@ class Sphere: public Hittable{
         Point3 center;
         double radius;
         std::shared_ptr<Material> material;
+
+        //Assumes for unit sphere centered at origin
+        static void getTexCoords(double& u,double &v,Point3& p);
+
     public:
         Sphere(std::shared_ptr<Material> material);
         Sphere(Point3 center,double radius,std::shared_ptr<Material> material);

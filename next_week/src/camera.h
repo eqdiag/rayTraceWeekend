@@ -15,6 +15,9 @@ class Camera{
         double lens_radius;
         double initial_time,final_time;
     public:
+
+        Camera();
+
         //Focal dist specifies the distance to the image plane where
         //everything is in focus
         Camera(Vec3 eye,Vec3 lookAt,Vec3 iup,

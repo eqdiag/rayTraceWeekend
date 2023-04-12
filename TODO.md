@@ -17,8 +17,8 @@
 
 ## Book 2:
 - [x] motion blur
-- [ ] bvh
-- [ ] solid textures 
+- [x] bvh
+- [x] solid textures 
 - [ ] perlin noise
 - [ ] image texture mapping
 - [ ] rectangles and lights

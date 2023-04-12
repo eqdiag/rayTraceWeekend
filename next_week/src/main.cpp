@@ -50,28 +50,20 @@ void ouputColor(const Color3& color){
     static_cast<int>(outColor.b()*255.999) << " ";
 }
 
-HitList basic_scene(){
-    auto ground = std::make_shared<Lambertian>(Color3{0.8,0.8,0.0});
-    auto material_center = std::make_shared<Lambertian>(Color3{0.1,0.2,0.5});
-    auto material_left = std::make_shared<Dielectric>(1.5);
-    auto material_right = std::make_shared<Metal>(Color3{0.8,0.6,0.2},1.0);
 
-
-    //Scene geometry
-    HitList scene;
-    scene.add(std::make_shared<Sphere>(Point3(0.,0.,-1.),0.5,material_center));
-    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),0.5,material_left));
-    scene.add(std::make_shared<Sphere>(Point3(-1.0,0.0,-1.0),-0.45,material_left));
-    scene.add(std::make_shared<Sphere>(Point3(1.0,0.,-1.),0.5,material_right));
-    scene.add(std::make_shared<Sphere>(Point3(0,-100.5,-1),100,ground));
-
-    return scene;
-}
-
-BVHNode random_scene() {
+HitList random_scene(bool use_checker) {
     HitList scene;
 
-    auto ground_material = std::make_shared<Lambertian>(Color3(0.5, 0.5, 0.5));
+    std::shared_ptr<Material> ground_material;
+
+    if(use_checker){
+        auto white = std::make_shared<FlatTexture>(Color3{1.0});
+        auto black = std::make_shared<FlatTexture>(Color3{0.0});
+        ground_material = std::make_shared<Lambertian>(std::make_shared<CheckerTexture>(white,black));
+    }else{
+        ground_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.5, 0.5, 0.5)));
+    }
+
     scene.add(std::make_shared<Sphere>(Point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
@@ -84,13 +76,13 @@ BVHNode random_scene() {
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = Color3::random_vec3(0.0,1.0) * Color3::random_vec3(0.0,1.0);
+                    auto albedo = std::make_shared<FlatTexture>(Color3::random_vec3(0.0,1.0) * Color3::random_vec3(0.0,1.0));
                     sphere_material = std::make_shared<Lambertian>(albedo);
                     Point3 center_end = center + Vec3(0.0,random_range(0.0,0.5),0.0);
                     scene.add(std::make_shared<MovingSphere>(center,center_end, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = Color3::random_vec3(0.5, 1);
+                    auto albedo = std::make_shared<FlatTexture>(Color3::random_vec3(0.5, 1));
                     auto fuzz = random_range(0, 0.5);
                     sphere_material = std::make_shared<Metal>(albedo, fuzz);
                     scene.add(std::make_shared<Sphere>(center, 0.2, sphere_material));
@@ -107,22 +99,22 @@ BVHNode random_scene() {
     auto material1 = std::make_shared<Dielectric>(1.5);
     scene.add(std::make_shared<Sphere>(Point3(0, 1, 0), 1.0, material1));
 
-    auto material2 = std::make_shared<Lambertian>(Color3(0.4, 0.2, 0.1));
+    auto material2 = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.4, 0.2, 0.1)));
     scene.add(std::make_shared<Sphere>(Point3(-4, 1, 0), 1.0, material2));
 
-    auto material3 = std::make_shared<Metal>(Color3(0.7, 0.6, 0.5), 0.0);
+    auto material3 = std::make_shared<Metal>(std::make_shared<FlatTexture>(Color3(0.7, 0.6, 0.5)), 0.0);
     scene.add(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
 
 
-
-    return BVHNode(scene,0.0,1.0);
+    //return scene;
+    return HitList(std::make_shared<BVHNode>(scene,0.0,1.0));
 }
 
 BVHNode test_scene_with_bvh(int size){
     HitList scene;
 
-    auto ground_material = std::make_shared<Lambertian>(Color3(0.5, 0.5, 0.5));
-    auto ball_material = std::make_shared<Lambertian>(Color3(0.8, 0.3, 0.3));
+    auto ground_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.5, 0.5, 0.5)));
+    auto ball_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.8, 0.3, 0.3)));
 
     scene.add(std::make_shared<Sphere>(Point3(0,-1001,0), 1000, ground_material));
 
@@ -138,8 +130,8 @@ BVHNode test_scene_with_bvh(int size){
 HitList test_scene_without_bvh(int size){
     HitList scene;
 
-    auto ground_material = std::make_shared<Lambertian>(Color3(0.5, 0.5, 0.5));
-    auto ball_material = std::make_shared<Lambertian>(Color3(0.8, 0.3, 0.3));
+    auto ground_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.5, 0.5, 0.5)));
+    auto ball_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.8, 0.3, 0.3)));
 
     scene.add(std::make_shared<Sphere>(Point3(0,-1001,0), 1000, ground_material));
 
@@ -151,31 +143,82 @@ HitList test_scene_without_bvh(int size){
 
     return scene;
 }
-int main(){
+int main(int argc,char** argv){
 
     init_random();
 
 
     //Image params
     const double aspect_ratio = 16.0/9.0;
-    const int WIDTH = 800;
+    const int WIDTH = 300;
     const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
 
     //Sampling params
     int samples_per_pixel = 100;
     int max_depth = 50;
 
-    //Camera
-    Point3 from(13,2,3);
-    Point3 at(0,0,0);
-    Vec3 up(0,1,0);
-    double f_dist = 10.0;
-    double aperture = 0.1;
 
-    Camera cam(from,at,up,20.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+    Point3 from;
+    Point3 at;
+    Vec3 up;
+    double f_dist;
+    double aperture;
+
+    Camera cam;
+
+    int scene_number;
+    int num_scenes = 2;
+
+
+    if(argc != 2){
+        std::cerr << "Usage: *.exe <scene_count>\n";
+        return 1;
+    }
+
+    int value = argv[1][0] - '0';
+
+    if(value < 0 || value >= (num_scenes+1)){
+        std::cerr << "Usage: *.exe <scene_count>\n";
+        return 1;
+    }
+
+    scene_number = value;
+    std::cerr << "Selected scene " << scene_number << std::endl;
+
+
+    HitList scene;
+
+    switch (scene_number)
+    {
+        case 0:
+            from = Point3(13,2,3);
+            at = Point3(0,0,0);
+            up = Vec3(0,1,0);
+            f_dist = 10.0;
+            aperture = 0.1;
+            cam = Camera(from,at,up,20.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            scene = random_scene(false);
+            break;
+        case 1:
+            from = Point3(13,2,3);
+            at = Point3(0,0,0);
+            up = Vec3(0,1,0);
+            f_dist = 10.0;
+            aperture = 0.0;
+            cam = Camera(from,at,up,20.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            scene = random_scene(true);
+            break;
+
+                
+        default:
+            break;
+    }
+
+    //Camera
+   
     //Camera cam(Point3{0,5,20},Point3{0,0,-1},Vec3{0,1,0},20,aspect_ratio,aperture,21,0.0,1.0);
 
-    auto scene = random_scene();
+    //auto scene = random_scene();
 
     //auto scene = test_scene_without_bvh(5);
     //auto scene = test_scene_with_bvh(5);

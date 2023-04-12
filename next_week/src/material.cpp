@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-Lambertian::Lambertian(const Color3& albedo)
+Lambertian::Lambertian(const std::shared_ptr<Texture> albedo)
 :albedo(albedo)
 {
 
@@ -16,12 +16,12 @@ bool Lambertian::scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenua
     }
 
     out = Ray3(hit.point,direction,in.getTime());
-    attenuation = albedo;
+    attenuation = albedo->getColor(hit.u,hit.v,hit.point);
 
     return true;
 }
 
-Metal::Metal(const Color3& albedo,double fuzz)
+Metal::Metal(const std::shared_ptr<Texture> albedo,double fuzz)
 :albedo(albedo),fuzz{fuzz < 1. ? fuzz : 1.}
 {
 
@@ -31,7 +31,7 @@ bool Metal::scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation)
 
     Vec3 direction = in.getDirection().normalize().reflect(hit.normal);
     out = Ray3(hit.point,direction + Vec3::random_unit_vec3()*fuzz,in.getTime());
-    attenuation = albedo;
+    attenuation = albedo->getColor(hit.u,hit.v,hit.point);
     return direction.dot(hit.normal) > 0.0;
 }
 
