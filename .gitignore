@@ -33,4 +33,5 @@
 
 #Build files
 build/*
-.vscode/settings.json
+*settings.json
+notes.txt

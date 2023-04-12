@@ -13,6 +13,16 @@ Sphere::Sphere(Point3 center,double radius,std::shared_ptr<Material> material)
 
 }
 
+Point3 Sphere::getCenter() const
+{
+    return center;
+}
+
+double Sphere::getRadius() const
+{
+    return radius;
+}
+
 std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const{
     
   
@@ -50,6 +60,25 @@ std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const
     return std::make_optional<Hit>(hit);
 
 }
+
+bool Sphere::getBoundingBox(double time0,double time1,AABB& box) const
+{
+    //std::cerr << "Sphere box: " << *this << std::endl;
+
+    box = {
+        center - Vec3(radius),
+        center + Vec3(radius)
+    };
+    return true;
+}
+
+std::ostream& operator<<(std::ostream& os,const Sphere& rhs)
+{
+    os << "center: " << rhs.getCenter() << " radius: " << rhs.getRadius() << std::endl;
+    return os;
+}
+
+
 
 MovingSphere::MovingSphere(std::shared_ptr<Material> material)
 :start_center{},end_center{},radius{1.0},material{material}
@@ -102,3 +131,20 @@ std::optional<Hit> MovingSphere::getHit(const Ray3& ray,double tmin,double tmax)
 
     return std::make_optional<Hit>(hit);
 };
+
+bool MovingSphere::getBoundingBox(double time0,double time1,AABB& box) const
+{
+    AABB box0 = {
+        getCenter(time0) - Vec3(radius),
+        getCenter(time0) + Vec3(radius)
+    };
+
+    AABB box1 = {
+        getCenter(time1) - Vec3(radius),
+        getCenter(time1) + Vec3(radius)
+    };
+
+    box = box0.mergeBoxes(box1);
+
+    return true;
+}

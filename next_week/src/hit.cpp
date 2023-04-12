@@ -38,6 +38,16 @@ void HitList::empty(){
     objects.clear();
 }
 
+const std::vector<std::shared_ptr<Hittable>>& HitList::getObjects() const{
+    return objects;
+}
+
+std::vector<std::shared_ptr<Hittable>>& HitList::getObjectsMut(){
+    return objects;
+}
+
+
+
 std::optional<Hit> HitList::getHit(const Ray3& ray,double tmin,double tmax) const{
     std::optional<Hit> closest{};
     double current_t = tmax;
@@ -53,4 +63,18 @@ std::optional<Hit> HitList::getHit(const Ray3& ray,double tmin,double tmax) cons
     }
 
     return closest;
+}
+
+bool HitList::getBoundingBox(double time0,double time1,AABB& box) const
+{
+    if(objects.empty()) return false;
+
+    bool first_box = true;
+    AABB current_box;
+
+    for(auto& object: objects){
+       if(!object->getBoundingBox(time0,time1,current_box)) return false;
+       box = first_box ? current_box : box.mergeBoxes(current_box);
+    }
+    return true;
 }
