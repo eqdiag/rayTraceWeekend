@@ -65,7 +65,7 @@ std::optional<Hit> Sphere::getHit(const Ray3& ray,double tmin,double tmax) const
 
 bool Sphere::getBoundingBox(double time0,double time1,AABB& box) const
 {
-    //std::cerr << "Sphere box: " << *this << std::endl;
+    //std::cerr << "Sphere box: " << *this << std::end
 
     box = {
         center - Vec3(radius),

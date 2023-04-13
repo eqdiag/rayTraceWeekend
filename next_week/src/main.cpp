@@ -59,7 +59,7 @@ HitList random_scene(bool use_checker) {
     if(use_checker){
         auto white = std::make_shared<FlatTexture>(Color3{1.0});
         auto black = std::make_shared<FlatTexture>(Color3{0.0});
-        ground_material = std::make_shared<Lambertian>(std::make_shared<CheckerTexture>(white,black));
+        ground_material = std::make_shared<Lambertian>(std::make_shared<CheckerTexture>(white,black,4.0));
     }else{
         ground_material = std::make_shared<Lambertian>(std::make_shared<FlatTexture>(Color3(0.5, 0.5, 0.5)));
     }
@@ -143,6 +143,43 @@ HitList test_scene_without_bvh(int size){
 
     return scene;
 }
+
+HitList two_spheres(){
+    HitList scene;
+
+    auto checker = std::make_shared<CheckerTexture>(
+        std::make_shared<FlatTexture>(Color3{0.2,0.3,0.1}),
+        std::make_shared<FlatTexture>(Color3{0.9,0.9,0.9}),
+        4.0
+    );
+
+    scene.add(std::make_shared<Sphere>(Point3(0,-10, 0), 10, std::make_shared<Lambertian>(checker)));
+    scene.add(std::make_shared<Sphere>(Point3(0,10, 0), 10, std::make_shared<Lambertian>(checker)));
+
+    return scene;
+}
+
+HitList perlin_scene(){
+    HitList scene;
+
+    auto marble = std::make_shared<NoiseTexture>(2.0);
+
+    auto checker = std::make_shared<CheckerTexture>(
+        std::make_shared<FlatTexture>(Color3{0.1}),
+        std::make_shared<FlatTexture>(Color3{1.0})
+    );
+
+    auto earth = std::make_shared<ImageTexture>("../assets/images/earthmap.jpg");
+
+
+    scene.add(std::make_shared<Sphere>(Point3(0,-1000, 0), 1000, std::make_shared<Metal>(checker,0.0)));
+    scene.add(std::make_shared<Sphere>(Point3(10,10, 0), 10, std::make_shared<Lambertian>(marble)));
+    scene.add(std::make_shared<Sphere>(Point3(-10,10, 0), 10, std::make_shared<Lambertian>(earth)));
+
+
+    return scene;
+}
+
 int main(int argc,char** argv){
 
     init_random();
@@ -150,7 +187,7 @@ int main(int argc,char** argv){
 
     //Image params
     const double aspect_ratio = 16.0/9.0;
-    const int WIDTH = 300;
+    const int WIDTH = 600;
     const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
 
     //Sampling params
@@ -167,7 +204,7 @@ int main(int argc,char** argv){
     Camera cam;
 
     int scene_number;
-    int num_scenes = 2;
+    int num_scenes = 4;
 
 
     if(argc != 2){
@@ -177,7 +214,7 @@ int main(int argc,char** argv){
 
     int value = argv[1][0] - '0';
 
-    if(value < 0 || value >= (num_scenes+1)){
+    if(value < 0 || value >= num_scenes){
         std::cerr << "Usage: *.exe <scene_count>\n";
         return 1;
     }
@@ -209,22 +246,26 @@ int main(int argc,char** argv){
             scene = random_scene(true);
             break;
 
-                
+        case 2:
+            from = Point3(13,2,3);
+            at = Point3(0,0,0);
+            up = Vec3(0,1,0);
+            f_dist = 10.0;
+            aperture = 0.0;
+            cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            scene = two_spheres();
+        case 3:
+            from = Point3(-5,20,40);
+            at = Point3(0,5,0);
+            up = Vec3(0,1,0);
+            f_dist = 10.0;
+            aperture = 0.0;
+            cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            scene = perlin_scene();
+
         default:
             break;
     }
-
-    //Camera
-   
-    //Camera cam(Point3{0,5,20},Point3{0,0,-1},Vec3{0,1,0},20,aspect_ratio,aperture,21,0.0,1.0);
-
-    //auto scene = random_scene();
-
-    //auto scene = test_scene_without_bvh(5);
-    //auto scene = test_scene_with_bvh(5);
-
-    //return 0;
-
 
     //Iterate through pixels and shade
     

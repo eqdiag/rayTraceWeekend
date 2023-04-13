@@ -35,3 +35,6 @@
 build/*
 *settings.json
 notes.txt
+
+#vscode specific
+.vscode/c_cpp_properties.json

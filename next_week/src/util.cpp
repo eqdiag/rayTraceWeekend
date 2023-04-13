@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
+
 double deg_to_rad(double degrees){
     return degrees * PI / 180.0;
 }
