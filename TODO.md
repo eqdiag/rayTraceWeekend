@@ -19,9 +19,9 @@
 - [x] motion blur
 - [x] bvh
 - [x] solid textures 
-- [ ] perlin noise
-- [ ] image texture mapping
-- [ ] rectangles and lights
+- [x] perlin noise
+- [x] image texture mapping
+- [x] rectangles and lights
 - [ ] instances
 - [ ] volumes
 

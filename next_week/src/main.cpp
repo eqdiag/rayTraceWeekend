@@ -8,6 +8,7 @@
 #include <cmath>
 #include "camera.h"
 #include "bvh.h"
+#include "rect.h"
 #include <memory>
 
 Color3 background(const Ray3& ray){
@@ -16,7 +17,7 @@ Color3 background(const Ray3& ray){
     return Color3{1.0,1.0,1.0}*(1.-t) + Color3{.54,.81,.94}*t;
 }
 
-Color3 shade(const Ray3& ray,const Hittable& scene,int depth){
+Color3 shade(const Ray3& ray,const Hittable& scene,int depth,bool has_background){
 
     if(depth <= 0){
         return Color3{0.0,0.0,0.0};
@@ -30,13 +31,16 @@ Color3 shade(const Ray3& ray,const Hittable& scene,int depth){
         auto material = hit.value().material;
         Ray3 out{};
         Color3 attenuation{};
+        Color3 color(material->emission(hit.value().u,hit.value().v,hit.value().point));
         if(material->scatter(ray,hit.value(),out,attenuation)){
-            return shade(out,scene,depth-1)*attenuation;
+            color += shade(out,scene,depth-1,has_background)*attenuation;
         }
-        return Color3{0.0};
+        return color;
     }
 
-    return background(ray);
+    if(has_background) return background(ray);
+    //Otherwise return no light
+    return Color3{0.0};
 }
 
 void ouputColor(const Color3& color){
@@ -180,18 +184,70 @@ HitList perlin_scene(){
     return scene;
 }
 
+HitList light_test_1(){
+
+    HitList scene;
+
+    auto marble = std::make_shared<NoiseTexture>(2.0);
+
+    auto checker = std::make_shared<CheckerTexture>(
+        std::make_shared<FlatTexture>(Color3{0.1}),
+        std::make_shared<FlatTexture>(Color3{1.0}),
+        0.25
+    );
+
+    auto light = std::make_shared<DiffuseLight>(Color3{2.});
+
+
+    scene.add(std::make_shared<Sphere>(Point3(0,-1000, 0), 1000, std::make_shared<Lambertian>(checker)));
+    scene.add(std::make_shared<Sphere>(Point3(0,5, 10), 5, std::make_shared<Lambertian>(marble)));
+    scene.add(std::make_shared<Sphere>(Point3(-15,10, 5), 5, light));
+    scene.add(std::make_shared<Sphere>(Point3(15,10, 5), 5, light));
+    scene.add(std::make_shared<RectXY>(-10,-5,5,10,20,light));
+    scene.add(std::make_shared<RectXZ>(5,-5,5,-10,-5,light));
+    scene.add(std::make_shared<RectXZ>(25,-5,5,-10,-5,light));
+    scene.add(std::make_shared<RectYZ>(10,10,20,-10,-5,light));
+    scene.add(std::make_shared<RectYZ>(-10,10,20,-10,-5,light));
+
+
+    //scene.add(std::make_shared<RectYZ>(5,-7,7,-5,5,light));
+
+
+
+    return scene;
+}
+
+HitList cornell_box(){
+
+    HitList scene;
+
+    auto red   = std::make_shared<Lambertian>(Color3(.65, .05, .05));
+    auto white = std::make_shared<Lambertian>(Color3(.73, .73, .73));
+    auto green = std::make_shared<Lambertian>(Color3(.12, .45, .15));
+    auto light = std::make_shared<DiffuseLight>(Color3(15, 15, 15));
+
+    scene.add(std::make_shared<RectYZ>(555,0, 555, 0, 555, green));
+    scene.add(std::make_shared<RectYZ>(0,0, 555, 0, 555, red));
+    scene.add(std::make_shared<RectXZ>(554,213, 343, 227, 332, light));
+    scene.add(std::make_shared<RectXZ>(0,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXZ>(555,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXY>(555,0, 555, 0, 555,white));
+
+    return scene;
+}
+
 int main(int argc,char** argv){
 
     init_random();
 
 
     //Image params
-    const double aspect_ratio = 16.0/9.0;
-    const int WIDTH = 600;
-    const int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
+    double aspect_ratio = 16.0/9.0;
+    int WIDTH = 400;
+    int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
 
     //Sampling params
-    int samples_per_pixel = 100;
+    int samples_per_pixel = 200;
     int max_depth = 50;
 
 
@@ -204,7 +260,7 @@ int main(int argc,char** argv){
     Camera cam;
 
     int scene_number;
-    int num_scenes = 4;
+    int num_scenes = 6;
 
 
     if(argc != 2){
@@ -224,6 +280,8 @@ int main(int argc,char** argv){
 
 
     HitList scene;
+
+    bool has_background = true;
 
     switch (scene_number)
     {
@@ -254,6 +312,7 @@ int main(int argc,char** argv){
             aperture = 0.0;
             cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
             scene = two_spheres();
+            break;
         case 3:
             from = Point3(-5,20,40);
             at = Point3(0,5,0);
@@ -262,6 +321,29 @@ int main(int argc,char** argv){
             aperture = 0.0;
             cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
             scene = perlin_scene();
+            break;
+        case 4:
+            from = Point3(0,10,40);
+            at = Point3(0,10,0);
+            up = Vec3(0,1,0);
+            f_dist = 10.0;
+            aperture = 0.0;
+            cam = Camera(from,at,up,60.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            has_background = false;
+            scene = light_test_1();
+            break;
+        case 5:
+            from = Point3(278, 278, -800);
+            at = Point3(278, 278, 0);
+            up = Vec3(0,1,0);
+            f_dist = 1.0;
+            aperture = 0.0;
+            aspect_ratio = 1.0;
+            HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
+            cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            has_background = false;
+            scene = cornell_box();
+            break;
 
         default:
             break;
@@ -283,7 +365,8 @@ int main(int argc,char** argv){
 
                 Ray3 ray = cam.getRay(u,v);
 
-                color += shade(ray,scene,max_depth);
+
+                color += shade(ray,scene,max_depth,has_background);
             }
             color /= double(samples_per_pixel);
 

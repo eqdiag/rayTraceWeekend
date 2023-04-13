@@ -26,7 +26,7 @@ Color3 FlatTexture::getColor(double u,double v,const Point3& p) const
 
 ImageTexture::ImageTexture(const char * path)
 {
-    img = stbi_load("../assets/images/earthmap.jpg",&width,&height,&num_channels,bytes_per_pixel);
+    img = stbi_load(path,&width,&height,&num_channels,bytes_per_pixel);
 
      if(img == nullptr){
         std::cerr << "Error loading image!\n";
@@ -68,7 +68,7 @@ CheckerTexture::CheckerTexture(std::shared_ptr<Texture> tex0,std::shared_ptr<Tex
 }
 
 CheckerTexture::CheckerTexture(std::shared_ptr<Texture> tex0,std::shared_ptr<Texture> tex1,double scale)
-:tex0{tex0},tex1{tex1},scale{1.0}
+:tex0{tex0},tex1{tex1},scale{scale}
 {
 
 }

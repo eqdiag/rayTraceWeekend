@@ -12,6 +12,11 @@ struct Hit;
 class Material{
     public:
         virtual bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const = 0;
+
+        //By default a material emits nothing
+        virtual Color3 emission(double u,double v,const Point3& p) const{
+            return Color3{0.};
+        }
 };
 
 class Lambertian: public Material{
@@ -20,6 +25,8 @@ class Lambertian: public Material{
 
     public:
         Lambertian(const std::shared_ptr<Texture> albedo);
+        Lambertian(const Color3& color);
+
 
         virtual bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
 
@@ -48,6 +55,18 @@ class Dielectric: public Material{
 
         virtual bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
 
+};
+
+class DiffuseLight: public Material{
+    private:
+        std::shared_ptr<Texture> texture;
+    public:
+        DiffuseLight(const std::shared_ptr<Texture> texture);
+        DiffuseLight(const Color3& color);
+
+        bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
+
+        Color3 emission(double u,double v,const Point3& p) const override;
 };
 
 

@@ -8,6 +8,13 @@ Lambertian::Lambertian(const std::shared_ptr<Texture> albedo)
 
 }
 
+Lambertian::Lambertian(const Color3& color)
+:albedo{std::make_shared<FlatTexture>(color)}
+{
+
+}
+
+
 bool Lambertian::scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const{
 
     Vec3 direction = hit.normal + Vec3::random_unit_vec3();
@@ -72,4 +79,27 @@ double Dielectric::schlick_reflectance(double cosine, double ref_idx) {
     double r0 = (1-ref_idx) / (1+ref_idx);
     r0 = r0*r0;
     return r0 + (1-r0)*pow((1 - cosine),5);
+}
+
+DiffuseLight::DiffuseLight(const std::shared_ptr<Texture> texture)
+:texture{texture}
+{
+
+}
+
+DiffuseLight::DiffuseLight(const Color3& color)
+:texture{std::make_shared<FlatTexture>(color)}
+{
+    
+}
+
+//Doesn't scatter any light, just emits
+bool DiffuseLight::scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const
+{
+    return false;
+}
+
+Color3 DiffuseLight::emission(double u,double v,const Point3& p) const
+{
+    return texture->getColor(u,v,p);
 }
