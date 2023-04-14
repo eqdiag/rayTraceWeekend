@@ -86,6 +86,16 @@ Vec3 Vec3::operator/(double scalar) const{
     return *this * (1.0 / scalar);
 }
 
+double Vec3::operator[](int index) const
+{
+    return v[index];
+}
+
+double& Vec3::operator[](int index)
+{
+    return v[index];
+}
+
 Vec3& Vec3::operator+=(const Vec3& rhs){
     v[0]+= rhs.x();
     v[1]+= rhs.y();

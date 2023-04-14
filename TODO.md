@@ -22,8 +22,8 @@
 - [x] perlin noise
 - [x] image texture mapping
 - [x] rectangles and lights
-- [ ] instances
-- [ ] volumes
+- [x] instances
+- [x] volumes
 
 ## Book 3:
 - [ ] light scattering
@@ -32,4 +32,4 @@
 
 ## Extra:
 - [ ] load obj
-- [ ] load img
+- [x] load img

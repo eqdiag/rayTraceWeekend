@@ -69,5 +69,16 @@ class DiffuseLight: public Material{
         Color3 emission(double u,double v,const Point3& p) const override;
 };
 
+class Isotropic: public Material{
+    private:
+        std::shared_ptr<Texture> texture;
+    public:
+        Isotropic(const Color3& color);
+        Isotropic(std::shared_ptr<Texture> texture);
+
+        bool scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const override;
+
+};
+
 
 #endif

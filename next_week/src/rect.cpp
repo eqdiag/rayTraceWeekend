@@ -101,3 +101,30 @@ bool RectYZ::getBoundingBox(double time0,double time1,AABB& box) const
     box = AABB(Point3(x - 0.0001,ymin,zmin),Point3(x + 0.0001,ymax,zmax));
     return true;
 }
+
+Box::Box(const Point3& p0,const Point3& p1,std::shared_ptr<Material> material)
+:p0{p0},p1{p1}
+{
+    //Left and right faces
+    faces.add(std::make_shared<RectYZ>(p0.x(),p0.y(),p1.y(),p0.z(),p1.z(),material));
+    faces.add(std::make_shared<RectYZ>(p1.x(),p0.y(),p1.y(),p0.z(),p1.z(),material));
+
+    //Top and bottom faces
+    faces.add(std::make_shared<RectXZ>(p1.y(),p0.x(),p1.x(),p0.z(),p1.z(),material));
+    faces.add(std::make_shared<RectXZ>(p0.y(),p0.x(),p1.x(),p0.z(),p1.z(),material));
+
+    //Front and back faces
+    faces.add(std::make_shared<RectXY>(p1.z(),p0.x(),p1.x(),p0.y(),p1.y(),material));
+    faces.add(std::make_shared<RectXY>(p0.z(),p0.x(),p1.x(),p0.y(),p1.y(),material));
+}
+
+std::optional<Hit> Box::getHit(const Ray3& ray,double tmin,double tmax) const
+{
+    return faces.getHit(ray,tmin,tmax);
+}
+
+bool Box::getBoundingBox(double time0,double time1,AABB& box) const
+{
+    box = AABB(p0,p1);
+    return true;
+}

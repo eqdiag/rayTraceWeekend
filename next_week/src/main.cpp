@@ -9,6 +9,8 @@
 #include "camera.h"
 #include "bvh.h"
 #include "rect.h"
+#include "instance.h"
+#include "volume.h"
 #include <memory>
 
 Color3 background(const Ray3& ray){
@@ -236,6 +238,85 @@ HitList cornell_box(){
     return scene;
 }
 
+HitList cornell_box_2()
+{
+    HitList scene;
+
+    auto red   = std::make_shared<Lambertian>(Color3(.65, .05, .05));
+    auto white = std::make_shared<Lambertian>(Color3(.73, .73, .73));
+    auto green = std::make_shared<Lambertian>(Color3(.12, .45, .15));
+
+    auto glass = std::make_shared<Dielectric>(1.5);
+
+    auto light = std::make_shared<DiffuseLight>(Color3(15, 15, 15));
+
+    //Walls and light
+    scene.add(std::make_shared<RectYZ>(555,0, 555, 0, 555, green));
+    scene.add(std::make_shared<RectYZ>(0,0, 555, 0, 555, red));
+    scene.add(std::make_shared<RectXZ>(554,213, 343, 227, 332, light));
+    scene.add(std::make_shared<RectXZ>(0,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXZ>(555,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXY>(555,0, 555, 0, 555,white));
+
+    //Left box
+
+    std::shared_ptr<Hittable> box1 = std::make_shared<Box>(Point3(0, 0, 0), Point3(165, 330, 165), white);
+    box1 = std::make_shared<RotateY>(15,box1);
+    box1 = std::make_shared<Translation>(Vec3(265,0,295),box1);
+    scene.add(box1);
+
+
+    //Right box
+    std::shared_ptr<Hittable> box2 = std::make_shared<Sphere>(Point3(0,100,0),100, glass);
+    //std::shared_ptr<Hittable> box2 = std::make_shared<Box>(Point3(0,0,0), Point3(165,165,165), white);
+    //box2 = std::make_shared<RotateY>(-18,box2);
+    box2 = std::make_shared<Translation>(Vec3(130,0,100),box2);
+    scene.add(box2);
+
+    return scene;
+}
+
+HitList cornell_smoke()
+{
+    HitList scene;
+
+    auto red   = std::make_shared<Lambertian>(Color3(.65, .05, .05));
+    auto white = std::make_shared<Lambertian>(Color3(.73, .73, .73));
+    auto green = std::make_shared<Lambertian>(Color3(.12, .45, .15));
+
+    auto glass = std::make_shared<Dielectric>(1.5);
+
+    auto light = std::make_shared<DiffuseLight>(Color3(7, 7, 7));
+
+    //Walls and light
+    scene.add(std::make_shared<RectYZ>(555,0, 555, 0, 555, green));
+    scene.add(std::make_shared<RectYZ>(0,0, 555, 0, 555, red));
+    scene.add(std::make_shared<RectXZ>(554,113, 443, 127, 432, light));
+    scene.add(std::make_shared<RectXZ>(0,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXZ>(555,0, 555, 0, 555, white));
+    scene.add(std::make_shared<RectXY>(555,0, 555, 0, 555,white));
+
+    //Left box
+
+    std::shared_ptr<Hittable> box1 = std::make_shared<Box>(Point3(0, 0, 0), Point3(165, 330, 165), white);
+    box1 = std::make_shared<RotateY>(15,box1);
+    box1 = std::make_shared<Translation>(Vec3(265,0,295),box1);
+    //scene.add(box1);
+
+
+    //Right box
+    std::shared_ptr<Hittable> box2 = std::make_shared<Box>(Point3(0,0,0), Point3(165,165,165), white);
+    box2 = std::make_shared<RotateY>(-18,box2);
+    box2 = std::make_shared<Translation>(Vec3(130,0,100),box2);
+    //scene.add(box2);
+
+    //Volumes
+    scene.add(std::make_shared<ConstantMedium>(box1,Color3(0,0,0),0.01));
+    scene.add(std::make_shared<ConstantMedium>(box2,Color3(1,1,1),0.01));
+
+    return scene;
+}
+
 int main(int argc,char** argv){
 
     init_random();
@@ -243,11 +324,11 @@ int main(int argc,char** argv){
 
     //Image params
     double aspect_ratio = 16.0/9.0;
-    int WIDTH = 400;
+    int WIDTH = 600;
     int HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
 
     //Sampling params
-    int samples_per_pixel = 200;
+    int samples_per_pixel = 300;
     int max_depth = 50;
 
 
@@ -260,7 +341,7 @@ int main(int argc,char** argv){
     Camera cam;
 
     int scene_number;
-    int num_scenes = 6;
+    int num_scenes = 8;
 
 
     if(argc != 2){
@@ -343,6 +424,31 @@ int main(int argc,char** argv){
             cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
             has_background = false;
             scene = cornell_box();
+            break;
+        case 6:
+            from = Point3(278, 278, -800);
+            at = Point3(278, 278, 0);
+            up = Vec3(0,1,0);
+            f_dist = 1.0;
+            aperture = 0.0;
+            aspect_ratio = 1.0;
+            HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
+            cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            has_background = false;
+            scene = cornell_box_2();
+            break;
+
+        case 7:
+            from = Point3(278, 278, -800);
+            at = Point3(278, 278, 0);
+            up = Vec3(0,1,0);
+            f_dist = 1.0;
+            aperture = 0.0;
+            aspect_ratio = 1.0;
+            HEIGHT = static_cast<int>(WIDTH/aspect_ratio);
+            cam = Camera(from,at,up,40.0,aspect_ratio,aperture,f_dist,0.0,1.0);
+            has_background = false;
+            scene = cornell_smoke();
             break;
 
         default:

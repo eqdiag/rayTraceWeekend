@@ -34,6 +34,10 @@ class Vec3{
         Vec3 operator*(double scalar) const;
         Vec3 operator/(double scalar) const;
 
+        double operator[](int index) const;
+        double& operator[](int index);
+
+
         Vec3& operator+=(const Vec3& rhs);
         Vec3& operator-=(const Vec3& rhs);
         Vec3& operator*=(double scalar);

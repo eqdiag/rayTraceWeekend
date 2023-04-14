@@ -44,5 +44,17 @@ class RectYZ: public Hittable{
         bool getBoundingBox(double time0,double time1,AABB& box) const override;
 };
 
+class Box: public Hittable{
+    private:
+        Point3 p0;
+        Point3 p1;
+        HitList faces;
+    public:
+        Box(const Point3& p0,const Point3& p1,std::shared_ptr<Material> material);
+
+        std::optional<Hit> getHit(const Ray3& ray,double tmin,double tmax) const override;
+        bool getBoundingBox(double time0,double time1,AABB& box) const override;
+};
+
 
 #endif

@@ -103,3 +103,22 @@ Color3 DiffuseLight::emission(double u,double v,const Point3& p) const
 {
     return texture->getColor(u,v,p);
 }
+
+Isotropic::Isotropic(const Color3& color)
+:texture{std::make_shared<FlatTexture>(color)}
+{
+
+}
+
+Isotropic::Isotropic(std::shared_ptr<Texture> texture)
+:texture{texture}
+{
+
+}
+
+bool Isotropic::scatter(const Ray3& in,const Hit& hit,Ray3& out,Color3& attenuation) const
+{
+    out = Ray3(hit.point,Vec3::random_unit_sphere(),in.getTime());
+    attenuation = texture->getColor(hit.u,hit.v,hit.point);
+    return true;
+}
