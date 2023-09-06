@@ -11,5 +11,4 @@ cd rayTraceWeekend
 mkdir build
 cd build
 cmake ..
-make
 ```
