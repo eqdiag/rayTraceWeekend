@@ -25,11 +25,3 @@
 - [x] instances
 - [x] volumes
 
-## Book 3:
-- [ ] light scattering
-- [ ] importance sampling
-- [ ] add more...
-
-## Extra:
-- [ ] load obj
-- [x] load img
